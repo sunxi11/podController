@@ -1,0 +1,12 @@
+apiVersion: kubebin.com.my.domain/v1
+kind: Podcontroller
+metadata:
+  labels:
+    app.kubernetes.io/name: podcontroller
+    app.kubernetes.io/instance: podcontroller-sample
+    app.kubernetes.io/part-of: podcontroller
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: podcontroller
+  name: podcontroller-sample
+spec:
+  # TODO(user): Add fields here

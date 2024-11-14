@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- kubebin.com_v1_podcontroller.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

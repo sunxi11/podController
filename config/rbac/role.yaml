@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - kubebin.com.my.domain
+  resources:
+  - podcontrollers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kubebin.com.my.domain
+  resources:
+  - podcontrollers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - kubebin.com.my.domain
+  resources:
+  - podcontrollers/status
+  verbs:
+  - get
+  - patch
+  - update
