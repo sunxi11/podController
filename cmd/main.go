@@ -18,7 +18,10 @@ package main
 
 import (
 	"flag"
+	"github.com/sunxi11/podController/internal/types"
+	"k8s.io/client-go/dynamic"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -26,6 +29,9 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	dynamicinformer "k8s.io/client-go/dynamic/dynamicinformer"
+	infomerfactory "k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -89,10 +95,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.PodcontrollerReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	kubeconfig := mgr.GetConfig()
+	kubeclient := kubernetes.NewForConfigOrDie(kubeconfig)
+	dynamicClient := dynamic.NewForConfigOrDie(kubeconfig)
+
+	kubeInformerFactory := infomerfactory.NewSharedInformerFactoryWithOptions(kubeclient, 10*time.Minute)
+	kubeDynamicFactory := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 10*time.Minute)
+
+	podInfomer := kubeInformerFactory.Core().V1().Pods()
+	dpusfInfomer := kubeDynamicFactory.ForResource(types.DpuSfGvr)
+
+	podController := controller.NewPodcontrollerReconciler(mgr.GetClient(), scheme, podInfomer, dpusfInfomer, ctrl.SetupSignalHandler())
+
+	if err = podController.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Podcontroller")
 		os.Exit(1)
 	}
@@ -108,6 +123,7 @@ func main() {
 	}
 
 	setupLog.Info("starting manager")
+
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)

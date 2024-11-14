@@ -27,7 +27,9 @@ import (
 type PodcontrollerSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
+	//corev1.
+	PodTargetRef string `json:"targetRef,omitempty"`
+	NicTargetRef string `json:"nicRef,omitempty"`
 	// Foo is an example field of Podcontroller. Edit podcontroller_types.go to remove/update
 	Foo string `json:"foo,omitempty"`
 }
