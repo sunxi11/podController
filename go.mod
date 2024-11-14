@@ -1,6 +1,8 @@
 module github.com/sunxi11/podController
 
-go 1.20
+go 1.22.0
+
+toolchain go1.22.8
 
 require (
 	github.com/onsi/ginkgo/v2 v2.19.0
