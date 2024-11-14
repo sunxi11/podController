@@ -129,6 +129,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	kubeInformerFactory.Start(ctx.Done())
+	kubeDynamicFactory.Start(ctx.Done())
+
 	go podController.SyncResouce()
 
 	setupLog.Info("starting manager")
