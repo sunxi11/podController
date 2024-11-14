@@ -129,6 +129,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	go podController.SyncResouce()
+
 	setupLog.Info("starting manager")
 
 	if err := mgr.Start(ctx); err != nil {

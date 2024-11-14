@@ -70,6 +70,8 @@ func (p *PodcontrollerReconciler) SyncResouce() error {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}
 
+	fmt.Printf("SyncResouce complete\n")
+
 	<-p.ctx.Done()
 
 	return nil
