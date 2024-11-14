@@ -93,6 +93,16 @@ func (p *PodcontrollerReconciler) SyncResouce() error {
 func (r *PodcontrollerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
+	if !r.PodsSynced() {
+		logger.Info("Pod informer is not yet synced")
+		return ctrl.Result{Requeue: true}, nil
+	}
+
+	if !r.DpuSynced() {
+		logger.Info("Dpu informer is not yet synced")
+		return ctrl.Result{Requeue: true}, nil
+	}
+
 	podcontroller := &kubebincomv1.Podcontroller{}
 	err := r.Get(ctx, req.NamespacedName, podcontroller)
 	if err != nil {
