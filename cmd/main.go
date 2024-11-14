@@ -21,6 +21,7 @@ import (
 	"github.com/sunxi11/podController/internal/types"
 	"k8s.io/client-go/dynamic"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -72,9 +73,13 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Scheme: scheme,
+		//MetricsBindAddress:     metricsAddr,
+		//Port:                   9443,
+		Metrics: server.Options{
+			BindAddress: metricsAddr,
+		},
+		//
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "4c4b6e89.my.domain",
