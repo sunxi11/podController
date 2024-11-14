@@ -72,6 +72,8 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	ctx := ctrl.SetupSignalHandler()
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 		//MetricsBindAddress:     metricsAddr,
@@ -110,7 +112,7 @@ func main() {
 	podInfomer := kubeInformerFactory.Core().V1().Pods()
 	dpusfInfomer := kubeDynamicFactory.ForResource(types.DpuSfGvr)
 
-	podController := controller.NewPodcontrollerReconciler(mgr.GetClient(), scheme, podInfomer, dpusfInfomer, ctrl.SetupSignalHandler())
+	podController := controller.NewPodcontrollerReconciler(mgr.GetClient(), scheme, podInfomer, dpusfInfomer, ctx)
 
 	if err = podController.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Podcontroller")
@@ -129,7 +131,7 @@ func main() {
 
 	setupLog.Info("starting manager")
 
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
