@@ -141,20 +141,27 @@ func (r *PodcontrollerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	pod, err := r.PodLister.Pods(podcontroller.Namespace).Get(targetPodName)
 	if err != nil {
 		if errors.IsNotFound(err) {
-
-			//pod = r.Get(ctx, t)
-
 			logger.Info("pod resource not found. Ignoring.")
 			return ctrl.Result{}, nil
 		}
 	}
 
+	podCopy := pod.DeepCopy()
+
 	//check pod
 	if curSf, ok := pod.Annotations[types.Annotations_DpuSf_Network]; !ok {
-		pod.Annotations[types.Annotations_DpuSf_Network] = targetSfName
-		err := r.Update(ctx, pod)
+
+		podCopy.Annotations[types.Annotations_DpuSf_Network] = targetSfName
+		podCopy.Name = pod.Name + targetSfName
+		err := r.Create(ctx, podCopy)
 		if err != nil {
-			logger.Error(err, "Failed to update pod resource")
+			logger.Error(err, "Failed to create pod resource")
+			return ctrl.Result{}, err
+		}
+
+		err = r.Delete(ctx, pod)
+		if err != nil {
+			logger.Error(err, "Failed to delete pod resource")
 			return ctrl.Result{}, err
 		}
 
@@ -163,12 +170,20 @@ func (r *PodcontrollerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	} else {
 		//检查 Status
 		if curSf != targetSfName {
-			pod.Annotations[types.Annotations_DpuSf_Network] = targetSfName
-		}
-		err := r.Update(ctx, pod)
-		if err != nil {
-			logger.Error(err, "Failed to update pod resource")
-			return ctrl.Result{}, err
+
+			podCopy.Annotations[types.Annotations_DpuSf_Network] = targetSfName
+			podCopy.Name = pod.Name + targetSfName
+			err := r.Create(ctx, podCopy)
+			if err != nil {
+				logger.Error(err, "Failed to create pod resource")
+				return ctrl.Result{}, err
+			}
+
+			err = r.Delete(ctx, pod)
+			if err != nil {
+				logger.Error(err, "Failed to delete pod resource")
+				return ctrl.Result{}, err
+			}
 		}
 
 		logger.Info("pod resource is right. Ignoring.")
