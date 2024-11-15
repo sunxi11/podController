@@ -154,6 +154,8 @@ func (r *PodcontrollerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 		podCopy.Annotations[types.Annotations_DpuSf_Network] = targetSfName
 		podCopy.Name = pod.Name + targetSfName
+		podCopy.Spec.NodeName = "zjlab105-poweredge-r740"
+
 		err := r.Create(ctx, podCopy)
 		if err != nil {
 			logger.Error(err, "Failed to create pod resource")
