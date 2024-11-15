@@ -147,6 +147,7 @@ func (r *PodcontrollerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	podCopy := pod.DeepCopy()
+	podCopy.ResourceVersion = ""
 
 	//check pod
 	if curSf, ok := pod.Annotations[types.Annotations_DpuSf_Network]; !ok {
